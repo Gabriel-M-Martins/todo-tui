@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use std::{
     io,
     time::{Duration, Instant},
@@ -6,7 +8,7 @@ use std::{
 use tui::{backend::CrosstermBackend, Terminal};
 
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
     execute,
     terminal::{disable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -28,7 +30,7 @@ fn main() -> Result<(), io::Error> {
     let mut app = app::App::default();
 
     loop {
-        terminal.draw(|f| ui::draw(f))?;
+        terminal.draw(|f| ui::draw(f, &app))?;
 
         let time_out = tick_rate
             .checked_sub(last_tick.elapsed())
@@ -36,11 +38,18 @@ fn main() -> Result<(), io::Error> {
 
         if crossterm::event::poll(time_out)? {
             if let Event::Key(key) = event::read()? {
-                match key.code {
-                    KeyCode::Char(c) => {
-                        app.on_key(c);
+                if key.kind == KeyEventKind::Press {
+                    match key.code {
+                        KeyCode::Char(c) => {
+                            match app.mode {
+                                app::Mode::Normal => app.on_key(c),
+                                app::Mode::Input => app.input.push(c)
+                            }
+                        }
+                        KeyCode::Backspace => { app.input.pop(); }
+                        KeyCode::Esc => app.change_mode(),
+                        _ => {}
                     }
-                    _ => {}
                 }
             }
         }
