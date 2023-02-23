@@ -60,7 +60,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
     }
 
     let input = Paragraph::new(input_text)
-        .block(Block::default().title("Input").borders(Borders::ALL))
+        .block(Block::default().borders(Borders::ALL))
         .style(Style::default().fg(Color::White).bg(Color::Black))
         .alignment(Alignment::Left)
         .wrap(Wrap { trim: true });

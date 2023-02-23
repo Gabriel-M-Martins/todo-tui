@@ -15,12 +15,11 @@ impl App {
         let ch = &c.to_ascii_lowercase();
         match ch {
             'e' => self.quit = true,
-            'i' => self.mode = Mode::Input,
-            'a' => {},
-            'n' => self.cmd = Some(Command::New),
-            'd' => self.cmd = Some(Command::Delete),
-            's' => self.cmd = Some(Command::Search),
-            't' => self.cmd = Some(Command::Toggle),
+            'a' => { self.input = String::new() },
+            'n' => { self.cmd = Some(Command::New);    self.enter_input_mode() },
+            'd' => { self.cmd = Some(Command::Delete); self.enter_input_mode() },
+            's' => { self.cmd = Some(Command::Search); self.enter_input_mode() },
+            't' => { self.cmd = Some(Command::Toggle); self.enter_input_mode() },
             _ => {}
         }
     }
@@ -32,9 +31,12 @@ impl App {
         }
     }
 
-    pub fn execute_cmd(&mut self) {
-        
-        
+    pub fn enter_input_mode(&mut self) {
+        self.input = String::new();
+        self.mode = Mode::Input;
+    }
+
+    pub fn execute_cmd(&mut self) {        
         self.cmd = None;
         unimplemented!()
     }
