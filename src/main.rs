@@ -15,6 +15,7 @@ use crossterm::{
 
 mod app;
 mod ui;
+mod database;
 
 fn main() -> Result<(), io::Error> {
     let mut stdout = io::stdout();
@@ -43,11 +44,12 @@ fn main() -> Result<(), io::Error> {
                         KeyCode::Char(c) => {
                             match app.mode {
                                 app::Mode::Normal => app.on_key(c),
-                                app::Mode::Input => app.input.push(c)
+                                app::Mode::Input => app.input.push(c),
                             }
                         }
                         KeyCode::Backspace => { app.input.pop(); }
                         KeyCode::Esc => app.change_mode(),
+                        KeyCode::Enter => app.execute_cmd(),
                         _ => {}
                     }
                 }

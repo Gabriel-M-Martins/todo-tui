@@ -3,10 +3,10 @@ use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Alignment},
     widgets::{Block, Borders, ListItem, List, Tabs, Paragraph, Wrap},
-    Frame, style::{Style, Modifier, Color}, text::Spans, symbols::DOT,
+    Frame, style::{Style, Modifier, Color}, text::{Spans, Text, Span}, symbols::DOT,
 };
 
-use crate::app::App;
+use crate::app::{App, Mode};
 
 pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
     let chunks = Layout::default()
@@ -21,35 +21,60 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
         )
         .split(f.size());
 
+    // -------------------------------------------------------------------------- options block
+    
+    let tabs_titles  = Options::VARIANTS.iter().cloned().map(|f| {
+        let (first, rest) = f.split_at(1);
+        Spans::from(vec![
+            Span::styled(first, Style::default().add_modifier(Modifier::UNDERLINED)),
+            Span::styled(rest, Style::default())
+        ])
+    }).collect();
 
-    let tabs_titles  = Options::VARIANTS.iter().cloned().map(Spans::from).collect();
     let tabs =  Tabs::new(tabs_titles)
         .block(Block::default().title("Options").borders(Borders::ALL))
         .style(Style::default())
-        .highlight_style(Style::default().fg(Color::Yellow))
+        .highlight_style(Style::default())
         .divider(DOT);
 
     f.render_widget(tabs, chunks[0]);   
     
-    let block = Block::default().title("Tasks").borders(Borders::ALL);
-    f.render_widget(block, chunks[1]);
+    // -------------------------------------------------------------------------- middle block
+    
+    let tasks = Block::default().title("Tasks").borders(Borders::ALL);
+    f.render_widget(tasks, chunks[1]);
 
-    // let input_block = Block::default().title("Input").borders(Borders::ALL); 
-    // f.render_widget(input_block, chunks[2]);
+    // -------------------------------------------------------------------------- input block
+    
+    let mut input_text = Spans::default();
+    match app.mode {
+        Mode::Input => { 
+            input_text = Spans::from(vec![
+            Span::raw(&app.input),
+            Span::styled("_", Style::default().add_modifier(Modifier::RAPID_BLINK)),
+            ]);
+        }
+        _ => {
+            input_text = Spans::from(vec![Span::raw(&app.input)]);
+        }
+    }
 
-    let input_text = Paragraph::new(app.input.clone())
-        .block(Block::default().title("Paragraph").borders(Borders::ALL))
+    let input = Paragraph::new(input_text)
+        .block(Block::default().title("Input").borders(Borders::ALL))
         .style(Style::default().fg(Color::White).bg(Color::Black))
         .alignment(Alignment::Left)
         .wrap(Wrap { trim: true });
 
-    f.render_widget(input_text, chunks[2]);
+    f.render_widget(input, chunks[2]);
 
 }
 
 #[derive(strum::EnumVariantNames)]
 pub enum Options {
     All,
+    New,
+    Delete,
     Search,
+    Toggle,
     Exit,
 }
