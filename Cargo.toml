@@ -7,3 +7,4 @@ edition = "2021"
 tui = "0.19"
 crossterm = "0.26"
 strum = { version = "0.24", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }
