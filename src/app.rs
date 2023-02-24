@@ -1,6 +1,6 @@
 use std::io;
 
-use crate::database::Database;
+use crate::database::{Database, InputType, task::Task};
 
 pub struct App {
     pub quit: bool,
@@ -37,8 +37,36 @@ impl App {
     }
 
     pub fn execute_cmd(&mut self) {        
+        if let Some(cmd) = &self.cmd {
+            match cmd {
+                Command::New    => {
+                    self.db.push(Task::parse(&self.input));
+                }
+                Command::Delete => {
+                    self.db.remove(self.type_check_input());
+                }
+                Command::Search => {
+                    // todo: make it so it searches automatically when writing on input
+                }
+                Command::Toggle => {
+                    // fixme: this feels weird. getting a mutable reference to the task is awkward.
+                    if let Some(task) = self.db.search(self.type_check_input()) {
+                        task.toggle();
+                    }
+                }
+            }
+        }
+        
         self.cmd = None;
-        unimplemented!()
+    }
+
+    fn type_check_input(&self) -> InputType {
+        let i = self.input.trim().parse::<i64>();
+        if let Ok(i) = i {
+            return InputType::Index(i);
+        } else {
+            return InputType::Name(self.input.to_owned());
+        }
     }
 }
 

@@ -13,7 +13,23 @@ impl Database {
         )
     }
 
-    pub fn search(&self) -> Option<Task> {
+    pub fn search(&self, method: InputType) -> Option<&mut Task> {
+        match method {
+            InputType::Name(n) => {
+                self.search_name(n)
+            }
+            InputType::Index(i) => {
+                self.search_id(i)
+            }
+        }
+    }
+
+    fn search_id(&self, index: i64) -> Option<&mut Task> {
+        unimplemented!()
+    }
+
+    fn search_name(&self, name: impl Into<String>) -> Option<&mut Task> {
+        // todo: use some crate to have fuzzy search
         unimplemented!()
     }
 
@@ -21,13 +37,35 @@ impl Database {
         unimplemented!()
     }
 
-    pub fn push(&self) {
+    pub fn push(&mut self, task: Task) {
+        self.tasks.push(task);
+    }
+
+    pub fn remove(&mut self, method: InputType) {
+        match method {
+            InputType::Name(n) => {
+                self.remove_name(n);
+            }
+            InputType::Index(i) => {
+                self.remove_id(i);
+            }
+        }
+    }
+
+    fn remove_id(&self, index: i64) {
         unimplemented!()
     }
 
-    pub fn remove(&self, index: i64) {
+    fn remove_name(&self, name: impl Into<String>){
+        // todo: use some crate to have fuzzy search
         unimplemented!()
     }
+}
+
+/// If the command used (search, remove and toggle) is by name or index.
+pub enum InputType {
+    Name(String),
+    Index(i64)
 }
 
 pub mod task {
@@ -76,6 +114,10 @@ pub mod task {
     impl Task {
         pub fn parse(txt: impl Into<String>) -> Self {
             unimplemented!()
+        }
+
+        pub fn toggle(&mut self) {
+            self.completed = !self.completed;
         }
     }
 }
