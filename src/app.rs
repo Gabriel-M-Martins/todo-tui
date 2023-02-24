@@ -49,10 +49,7 @@ impl App {
                     // todo: make it so it searches automatically when writing on input
                 }
                 Command::Toggle => {
-                    // fixme: this feels weird. getting a mutable reference to the task is awkward.
-                    if let Some(task) = self.db.search(self.type_check_input()) {
-                        task.toggle();
-                    }
+                    // todo: toggle task completion
                 }
             }
         }

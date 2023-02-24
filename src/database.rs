@@ -69,6 +69,8 @@ pub enum InputType {
 }
 
 pub mod task {
+    use std::io;
+
     use chrono::{DateTime, Local};
 
     pub struct Task {
@@ -113,11 +115,53 @@ pub mod task {
 
     impl Task {
         pub fn parse(txt: impl Into<String>) -> Self {
+            let txt: String = txt.into();
+            
+            let task = Task::default();
+
+            if txt.starts_with('x') {}
+            
             unimplemented!()
         }
 
-        pub fn toggle(&mut self) {
+        pub fn toggle(mut self) -> Self {
             self.completed = !self.completed;
+            return self;
+        }
+
+        pub fn priority(mut self, c: char) -> Self {
+            self.priority = Some(c);
+            return self;
+        }
+
+        pub fn creation_date(mut self, date: DateTime<Local>) -> Self {
+            self.dates = Some(Dates { creation: date, completed: None });
+            return self;
+        }
+
+        pub fn completion_date(mut self, date: DateTime<Local>) -> Result<Self, io::ErrorKind> {
+            match self.dates {
+                Some(dates) => {
+                    self.dates = Some(Dates { creation: dates.creation, completed: Some(date) });
+                    return Ok(self);
+                }
+                None => {
+                    unimplemented!()
+                }
+            }
+        }
+
+        pub fn description(mut self, txt: impl Into<String>, tags: Option<Vec<Tags>>) -> Self {
+            match tags {
+                Some(tags) => {
+                    self.desc = Description { txt: txt.into(), tags };
+                    return self;
+                },
+                None => {
+                    self.desc = Description { txt: txt.into(), tags: vec![] };
+                    return self;
+                }
+            }
         }
     }
 }
